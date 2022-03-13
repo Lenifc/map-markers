@@ -1,38 +1,115 @@
-.App {
-  text-align: center;
+.cluster-marker {
+  color: #fff;
+  background: #1978c8;
+  border-radius: 50%;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.pin {
+  transition: all 200ms ease-out;
+  color: white;
+  background-color: white;
+  border: 1px solid white;
+  width: 36px;
+  height: 36px;
+}
+.pin:hover,
+.pin:focus {
+  background-color: white;
+  cursor: pointer;
+  transform: scale(1.33);
+  z-index: 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+
+i {
+  transform: rotate(0);
+}
+.pin:hover i,
+.pin:focus i {
+  background-color: white;
+  cursor: pointer;
+  transform: scale(1.33);
+  z-index: 1;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+
+.pin__parking {
+  font-size: 1.4rem;
+  border-radius: 6px;
+  background-color: gray;
+  border: 1px solid transparent;
+}
+.pin__parking:hover,
+.pin__parking:focus {
+  border-color: gray;
+  color: gray;
+}
+
+
+.pin__vehicle {
+  border-radius: 100% 100% 0 100%;
+  transform: rotate(45deg);
+  transform-origin: right bottom;
+}
+.pin__vehicle i{
+  transform: rotate(-45deg);
+}
+.pin__vehicle:hover,
+.pin__vehicle:focus {
+  border-color: gray;
+  color: gray;
+}
+.pin__vehicle:hover i,
+.pin__vehicle:focus i {
+  transform: rotate(0deg);
+}
+
+
+.green {
+  background-color: green;
+}
+.green:hover,
+.green:focus {
+  color: green;
+  border-color: green;
+}
+
+
+.red {
+  background-color: red;
+}
+.red:hover,
+.red:focus {
+  color: red;
+  border-color: red;
+}
+
+
+.popup{
+  display: none;
+  position: relative;
+  line-height: 1rem;
+}
+.active-popup{
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  width: 200px;
+  background-color: black;
+  color:white;
+  z-index: 1000;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.close-popup{
+  position: absolute;
+  font-size: 1.11rem;
+  top:4px;
+  cursor: pointer;
+  right:8px;
 }
