@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/map-markers/static/css/main.3dc7901e.css",
+    "main.js": "/map-markers/static/js/main.23dcbbbd.js",
+    "index.html": "/map-markers/index.html",
+    "main.3dc7901e.css.map": "/map-markers/static/css/main.3dc7901e.css.map",
+    "main.23dcbbbd.js.map": "/map-markers/static/js/main.23dcbbbd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3dc7901e.css",
+    "static/js/main.23dcbbbd.js"
+  ]
+}
