@@ -8,14 +8,28 @@ const Marker = ({ children }) => children;
 
 export default function App() {
   const [bounds, setBounds] = useState(null)
-  const [zoom, setZoom] = useState(10)
-  const [fetchedAgencies, setFetchedAgencies] = useState([])
-  const [fetchedVehicles, setFetchedVehicles] = useState([])
+  const [zoom, setZoom] = useState(5)
+  const [fetchedAgencies, setFetchedAgencies] = useState({})
+  const [fetchedVehicles, setFetchedVehicles] = useState({})
+  const [filterValues, setFilterValues] = useState({})
+  const [points, setPoints] = useState([])
+  const [allPoints, setAllPoints] = useState([])
 
 
   useEffect(() => {
     fetchAgenciesAndVehicles()
   }, [])
+
+
+  useEffect(() => {
+      createPoints()
+  }, [fetchedVehicles])
+
+  useEffect(() => {
+    // rerender points on every 
+    if(allPoints.length && Object.keys(filterValues).length) filterQuery()
+  }, [filterValues])
+
 
   // used API https://rapidapi.com/transloc/api/openapi-1-2/
   async function fetchAgenciesAndVehicles() {
@@ -32,7 +46,6 @@ export default function App() {
 
     try{
       let { data: agenciesResponse } = await (await fetch(url + agenciesEndPoint, fetchOptions)).json()
-      // console.log('AGENCIES:', agenciesResponse);
       setFetchedAgencies(agenciesResponse)
 
         // %2C is a comma ( , ) for URL address
@@ -52,19 +65,20 @@ export default function App() {
       vehiclesResponse = vehiclesResponse.map(vehicle => ({ 
           // matching above KEY to get agency name for every vehicle
           agency_name: agenciesResponse.find(agency => agency.agency_id === vehicle.agency_id)?.long_name,
-          fuel: (Math.floor(Math.random() * 95)+5), // generates random fuel fill level
-          seats: (Math.floor(Math.random()*7)+2),
+          fuel: Math.floor(Math.random() * 96)+5, // generates random fuel fill level
+          seats: Math.floor(Math.random()*8)+2,
           ...vehicle
       }))
-
-      // console.log('VEHICLES:', vehiclesResponse)
       setFetchedVehicles(vehiclesResponse)
     } 
     catch(error) {console.error(error)}
   }
 
+
+
+function createPoints(){
     // rebuilding structure to stick with 'use-supercluster' naming convention
-  let points = Object.values(fetchedVehicles).map((vehicle) => ({
+  const vehiclesArray = Object.values(fetchedVehicles).map((vehicle) => ({
         properties: {
           id: vehicle.vehicle_id,
           agency_id: vehicle.agency_id,
@@ -82,11 +96,10 @@ export default function App() {
             parseFloat(vehicle.location?.lat)
           ]
         }
-      })
-    )
+      }))
 
       // agencies showed as PARKINGS for all these vehicles
-    points.push(...Object.values(fetchedAgencies).map((agency) => ({
+    const agenciesArray = Object.values(fetchedAgencies).map((agency) => ({
       properties: {
         id: agency.agency_id,
         type: 'parking',
@@ -99,9 +112,41 @@ export default function App() {
           parseFloat(agency.position?.lat)
         ]
       }
-    })
-  ))
-  // console.log(points);
+    }))
+
+    // combine 2 arrays and show as 1 big array of Points
+  setAllPoints(vehiclesArray.concat(agenciesArray))
+  setPoints(vehiclesArray.concat(agenciesArray))
+  if(allPoints.length && Object.keys(filterValues).length) filterQuery()
+}
+
+
+function filterQuery(){
+    let query = allPoints
+
+    query = allPoints.filter(marker => (
+    (
+      filterValues.showVehicles && marker.properties?.type === 'vehicle' && 
+      (
+        (filterValues.showReservedVehicles && !marker.properties?.available) || 
+        (filterValues.showAvailableVehicles && marker.properties?.available)
+      )
+    ) || 
+    (filterValues.showParkings && marker.properties?.type === 'parking')
+    ))
+
+    if(filterValues.useFuelFilter) query = query.filter(marker =>  
+      (marker.properties?.type === 'vehicle' && marker.properties?.fuel >= filterValues.fuelLevel) || 
+      (filterValues.showParkings && marker.properties?.type === 'parking'))
+
+    if(filterValues.useSeatsFilter) query = query.filter(marker => 
+      (marker.properties?.type === 'vehicle' && marker.properties?.seats >= filterValues.availableSeats)  || 
+      (filterValues.showParkings && marker.properties?.type === 'parking'))
+
+    setPoints(query)
+  }
+  
+
 
   function setPopup() {
     Array.from(document.querySelectorAll('.popup')).map(popup => popup.classList.remove('active-popup'))
@@ -118,7 +163,7 @@ export default function App() {
   
   return (
     <div style={{ height: "100vh", width: "100%" }}>
-      <FilterBox toggleRefresh={() => fetchAgenciesAndVehicles()}/>
+      <FilterBox toggleRefresh={() => fetchAgenciesAndVehicles()} filterValues={(vals) => setFilterValues(vals)} />
       <GoogleMapReact
         bootstrapURLKeys={{ key: 'AIzaSyCEFy8n9HJuBcfOmBxVEQ1NAW8zbfag3sg' }}
         defaultCenter={{ lat: 35.9695, lng: -83.9511 }}
@@ -137,6 +182,7 @@ export default function App() {
         {clusters.map(cluster => {
           const [longitude, latitude] = cluster.geometry.coordinates
           const {
+            id,
             cluster: isCluster,
             point_count,
             type: markerType,
@@ -167,17 +213,17 @@ export default function App() {
           // individual pins/markers
           return (
             <Marker
-              key={`${markerType}-${cluster.properties.id}`}
+              key={`${markerType}-${id}`}
               lat={latitude}
               lng={longitude}
             >
-              <div className='pin-container' onClick={() => setPopup(cluster.properties.id, true)}>
-                <button id={`${markerType}-${cluster.properties.id}`} className={`pin pin__${markerType} ${available === true ? 'green' : 
+              <div className='pin-container' onClick={() => setPopup(id, true)}>
+                <button id={`${markerType}-${id}`} className={`pin pin__${markerType} ${available === true ? 'green' : 
                 (available === false ? 'red' : '')}`}>
                   <i className={`fa-solid ${markerType === 'vehicle' ? 'fa-car' : 'fa-square-parking'}`}></i>
                 </button>
               </div>
-              <div id={`${markerType}-${cluster.properties.id}-popup`} className="popup" style={{width: '200px'}}>
+              <div id={`${markerType}-${id}-popup`} className="popup" style={{width: '200px'}}>
                 <div className="close-popup" onClick={(e) => e.target.parentElement.classList.remove('active-popup')}>&times;</div>
                 <span style={{fontWeight: 'bold', fontSize: '0.75rem'}}> {agencyName && `Agency name: ${agencyName}`} </span>
                 <span> {vehicleCode && `Vehicle Code: ${vehicleCode}`} </span>
