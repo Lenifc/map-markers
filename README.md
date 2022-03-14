@@ -1,8 +1,9 @@
 # Live version: https://lenifc.github.io/map-markers
-Map filtering is available in top-left corner!
+- Map filtering is available in top-left corner!
 
-Fuel level and number of available seats for vehicle are RANDOMLY generated, so after Refresh these values will change
-Vehicle availability depends on vehicle speed - if speed is 0 then vehicle is available/free
+- Fuel level and number of available seats for vehicle are RANDOMLY generated, so after Refresh these values will change
+
+- Vehicle availability depends on vehicle speed - if speed is 0 then vehicle is available/free
 
 
 ///////////////
