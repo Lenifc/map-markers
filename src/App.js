@@ -230,6 +230,7 @@ function filterQuery(){
                 <span> {available !== null && `Available: ${String(available)}`} </span>
                 <span> {fuel && `FUEL: ${fuel}%`} </span>
                 <span> {seats && `${seats}-Passenger`} </span>
+                {available && (<button className="reserve-button" onClick={(e) => e.target.innerText = 'This button does not work for now!'}>Reserve&Drive</button>)}
               </div>
             </Marker>
           );
