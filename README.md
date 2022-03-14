@@ -1,4 +1,7 @@
 # Live version: https://lenifc.github.io/map-markers
+
+- Most pins/markers are visible in the Polish afternoon/evening hours when transport companies start the day in US
+
 - Map filtering is available in top-left corner!
 
 - Fuel level and number of available seats for vehicle are RANDOMLY generated, so after Refresh these values will change
